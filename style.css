@@ -1,0 +1,35 @@
+#calcTerminal{
+    grid-area: terminal;
+    display: flex;
+    align-items: center;
+    background-color: black;
+}
+#calcScreen{
+    width: 100%;
+    height: 80%;
+    font-size: 20vmin;
+}
+
+#Btn3{
+    grid-area: Btn3;
+}
+
+#calcDiv{
+    display: grid;
+    border-radius: 5%;
+    background-color: aliceblue;
+    grid-template-columns:  repeat(4, 17vmin);
+    grid-template-rows: 25vmin repeat(5,15vmin);
+    overflow: hidden;
+    column-gap: 4vmin;
+    height: 100vmin;
+    width: 80vmin;
+    grid-template-areas: 
+    "terminal terminal terminal terminal"
+    "whatever whatever Btn3 BtnDivide"
+    "whatever whatever Btn3 BtnDivide"
+    "whatever whatever Btn3 BtnDivide"
+    "whatever whatever Btn3 BtnDivide"
+    "whatever whatever Btn3 BtnDivide"
+    
+}
