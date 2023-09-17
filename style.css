@@ -26,6 +26,9 @@
 #btnEquals:hover{
     filter:brightness(150%);
 }
+#btnEquals:disabled,#btnEquals:disabled:hover {
+    filter: brightness(75%);
+}
 #btnClear{
     grid-area: btnClear;
 }
@@ -33,6 +36,10 @@
 
 .simpleBtn,#btnEquals,#btnClear{
     font-size: 6vmin;
+    cursor: pointer;
+}
+.simpleBtn:disabled,#btnEquals:disabled{
+    cursor: default;
 }
 
 

@@ -21,24 +21,32 @@ function createButtons(buttonValue,btnIndex){
     }
 
 }
+
 function addEvLstnSimpleBtn(){
     document.querySelectorAll('.simpleBtn').forEach(
         (simpleBtnEl)=>{
-            simpleBtnEl.addEventListener('click',function(){addToCalcScreen(simpleBtnEl.innerText)})
+            simpleBtnEl.addEventListener('click',function(){addToCurrentCalc(simpleBtnEl.innerText)})
         }
     )
 }
 
-function addToCalcScreen(textToAdd){
-    if (calcScreen.value.length<31)
-    {
-        calcScreen.value +=textToAdd
-        crntValue.innerText=getTranslateCalculation(calcScreen.value)
-    }
-    else{
+function addToCurrentCalc(textToAdd){
+    calcScreen.value +=textToAdd
+    changeToCurrentCalc()
+}
+function removeToCurrentCalc(){
+    calcScreen.value= calcScreen.value.slice(0,-1)
+    changeToCurrentCalc()
+}
+
+function changeToCurrentCalc(){
+    let calcValue=getTranslateCalculation(calcScreen.value)
+    console.log()
+    crntValue.innerText= `=${calcValue}`
+    btnEquals.disabled=calcValue.startsWith("ERROR")
+    if (calcScreen.value.length>=30){
         changeDisableSimpleBtn(true)
     }
-
 }
 
 function changeDisableSimpleBtn(disableValue){
@@ -112,7 +120,7 @@ function calcMathArr(mthArr){
         nextmathOpp= minIfNotNegative(newTempArr.indexOf('-'),newTempArr.indexOf('+'))
     }
 
-    return newTempArr[0]
+    return `${(Math.floor(newTempArr[0]*1000))/1000}`
 
 }
 
@@ -157,12 +165,36 @@ function isMathOper(mathOperStr){
     }
     return false;
 }
+//equals
+function pressedEqual(){
+    if(!btnEquals.disabled){
+        calcScreen.value=getTranslateCalculation(calcScreen.value)
+        changeToCurrentCalc()
+    }
+}
 
-//complex buttons
 
-//eq
 //clear
+function startClearTimer()
+{
+    timePressedDown=new Date().getTime()
+    btnClear.addEventListener('mouseup',endClearTimer)
+    btnClear.addEventListener('mouseout',endClearTimer)
+}
+function endClearTimer(){
+    if (new Date().getTime()-timePressedDown>1000){
+        calcScreen.value=""
+        changeToCurrentCalc()
+    }
+    else{
+        removeToCurrentCalc()
+    }
+    btnClear.removeEventListener('mouseup',endClearTimer)
+    btnClear.removeEventListener('mouseout',endClearTimer)
+}
 
+
+//run at start
 const simpleButtonArr=['+','-','*','/','.']
 const altNameArr=['Plus',"Minus","Multi","Divide","Dot"]
 for (let i = 0; i < 10; i++) {
@@ -172,5 +204,8 @@ for (let i = 0; i < 10; i++) {
 simpleButtonArr.forEach((simpleButton,smpBtnIndex)=>{ createButtons(simpleButton,smpBtnIndex)})
 
 addEvLstnSimpleBtn()
+let timePressedDown;
+btnClear.addEventListener('mousedown',startClearTimer)
+btnEquals.addEventListener('click',pressedEqual)
 
 
