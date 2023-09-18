@@ -56,12 +56,20 @@ function changeDisableSimpleBtn(disableValue){
 //calculate
 function getTranslateCalculation(mathStr){
     let mathArr=splitMathStr(mathStr)
-    if (mthArrValid(mathArr))
+    if(mathArr[0].startsWith("ERROR")){
+        return mathArr[0];
+    }
+    return getTranslateMthArr(mathArr)
+}
+
+function getTranslateMthArr(mthArr){
+    if (mthArrValid(mthArr))
     {
-        return calcMathArr(mathArr)
+        return calcMathArr(mthArr)
     }
     return "ERROR:Couldn't calculate"
 }
+
 function mthArrValid(arr1){
     for (let i = 0; i < arr1.length; i+=2) {
         if (isNaN(arr1[i])||arr1[i]=='')
@@ -125,12 +133,34 @@ function calcMathArr(mthArr){
 }
 
 function splitMathStr(mthStr){
-    const newArr=[];
+    let newArr=[];
     let newStr="";
+    let afterCloseParan=false;
     for(let i=0;i<mthStr.length;i++)
     {
         switch(mthStr[i])
         {
+            case '(': 
+                if(newStr!=""){
+                    return["ERROR:number before paranthasis"]
+                }
+                newArr.push('(')
+            break;
+            case ')':
+                
+                let paranOpenBefore= newArr.lastIndexOf('(')
+                if(paranOpenBefore==-1){
+                    return ["ERROR:paranthasis closed before opening"]
+                }
+                newArr.push(newStr)
+                const paranValue= getTranslateMthArr(newArr.slice(paranOpenBefore+1))
+                if(paranValue.startsWith('ERROR')){
+                    return [paranValue]
+                }
+                newArr.splice(paranOpenBefore)
+                afterCloseParan=true;
+                newStr=paranValue;
+            break;
             case '-':
                 if(i==0|| isMathOper(mthStr[i-1])){
                     newStr+=mthStr[i];
@@ -142,15 +172,20 @@ function splitMathStr(mthStr){
                 newArr.push(newStr)
                 newArr.push(mthStr[i])
                 newStr=""
+                afterCloseParan=false
             break;
 
             default:
+                if(afterCloseParan){
+                    return ["ERROR: number after paranthasis"]
+                }
                 newStr+=mthStr[i]
             break;
         }
+        
     }
     newArr.push(newStr)
-
+    // console.log(newArr)
     return newArr
 
 }
@@ -195,8 +230,8 @@ function endClearTimer(){
 
 
 //run at start
-const simpleButtonArr=['+','-','*','/','.']
-const altNameArr=['Plus',"Minus","Multi","Divide","Dot"]
+const simpleButtonArr=['+','-','*','/','.','(',')']
+const altNameArr=['Plus',"Minus","Multi","Divide","Dot",'OpenParan','CloseParan']
 for (let i = 0; i < 10; i++) {
     simpleButtonArr.push(`${i}`)    
 }
@@ -207,5 +242,3 @@ addEvLstnSimpleBtn()
 let timePressedDown;
 btnClear.addEventListener('mousedown',startClearTimer)
 btnEquals.addEventListener('click',pressedEqual)
-
-
