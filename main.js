@@ -39,6 +39,16 @@ function removeToCurrentCalc(){
     changeToCurrentCalc()
     
 }
+function changeFromUser(){
+    if (calcScreen.value.endsWith('='))
+    {
+        removeToCurrentCalc()
+        pressedEqual()
+    }
+    else{
+        changeToCurrentCalc()   
+    }
+}
 
 function changeToCurrentCalc(){
     let calcValue=getTranslateCalculation(calcScreen.value)
@@ -47,6 +57,9 @@ function changeToCurrentCalc(){
     btnEquals.disabled=calcValue.startsWith("ERROR")
     if (calcScreen.value.length>=55){
         changeDisableSimpleBtn(true)
+    }
+    else{
+        changeDisableSimpleBtn(false)
     }
 }
 
@@ -251,7 +264,6 @@ function pressedEqual(){
     }
 }
 
-
 //clear
 function startClearTimer()
 {
@@ -260,6 +272,7 @@ function startClearTimer()
     btnClear.addEventListener('mouseout',endClearTimer)
     timeoutID=setTimeout(function(){btnClear.style.background='orange'},1000)
 }
+
 function endClearTimer(){
     if (new Date().getTime()-timePressedDown>1000){
         calcScreen.value=""
@@ -275,7 +288,6 @@ function endClearTimer(){
     btnClear.removeEventListener('mouseout',endClearTimer)
 }
 
-
 //run at start
 const simpleButtonArr=['+','-','*','/','√','^','.','(',')']
 const altNameArr=['Plus',"Minus","Multi","Divide",'Root','Powered',"Dot",'OpenParan','CloseParan']
@@ -284,8 +296,8 @@ for (let i = 0; i < 10; i++) {
 }
 
 simpleButtonArr.forEach((simpleButton,smpBtnIndex)=>{ createButtons(simpleButton,smpBtnIndex)})
-
 addEvLstnSimpleBtn()
+
 let timePressedDown;
 let timeoutID;
 btnClear.addEventListener('mousedown',startClearTimer)

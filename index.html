@@ -10,7 +10,7 @@
 
     <div id="calcDiv">
         <div id="calcTerminal">
-            <textarea id="calcScreen"  disabled ></textarea>
+            <textarea id="calcScreen" oninput="changeFromUser()" maxlength="55"></textarea>
             <div id="crntValue"></div>
         </div>
         <button id="btnClear">C/AC</button>

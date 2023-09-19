@@ -12,6 +12,7 @@
     font-size: 5vmin;
     border: 1px;
     background-color: rgb(6, 163, 177);
+    word-break: break-all;
 }
 #crntValue{
     width: 100%;
