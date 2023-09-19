@@ -102,37 +102,16 @@ function calcMathArr(mthArr){
     if (newTempArr[0].startsWith("ERROR")){
         return newTempArr[0];
     }
-
-    nextmathOpp=minIfNotNegative(newTempArr.indexOf('*'),newTempArr.indexOf('/'))
-    while(nextmathOpp!=-1){
-
-        let operationValue=calcOnMathOp(newTempArr[nextmathOpp],+newTempArr[nextmathOpp-1], +newTempArr[nextmathOpp+1])
-        if(operationValue.startsWith("ERROR")){
-            return operationValue;
-        }
-
-        newTempArr[nextmathOpp-1]= operationValue
-        newTempArr.splice(nextmathOpp,2)
-
-        nextmathOpp=minIfNotNegative(newTempArr.indexOf('*'),newTempArr.indexOf('/'))
+    newTempArr=calcPrioOp(newTempArr,'*','/')
+    if (newTempArr[0].startsWith("ERROR")){
+        return newTempArr[0];
+    }
+    newTempArr=calcPrioOp(newTempArr,'-','+')
+    if (newTempArr[0].startsWith("ERROR")){
+        return newTempArr[0];
     }
 
-
-    nextmathOpp= minIfNotNegative(newTempArr.indexOf('-'),newTempArr.indexOf('+'))
-    while(nextmathOpp!=-1){
-        let operationValue=calcOnMathOp(newTempArr[nextmathOpp],+newTempArr[nextmathOpp-1], +newTempArr[nextmathOpp+1])
-        if(operationValue.startsWith("ERROR")){
-            return operationValue;
-        }
-
-        newTempArr[nextmathOpp-1]= operationValue
-        newTempArr.splice(nextmathOpp,2)
-
-        nextmathOpp= minIfNotNegative(newTempArr.indexOf('-'),newTempArr.indexOf('+'))
-    }
-
-    return `${(Math.floor(newTempArr[0]*1000))/1000}`
-
+    return newTempArr[0];
 }
 
 
@@ -140,7 +119,7 @@ function calcPrioOp(newMthArr,op1,op2){
     let nextmathOpp=minIfNotNegative(newMthArr.indexOf(op1),newMthArr.indexOf(op2))
     while(nextmathOpp!=-1){
 
-        let operationValue=calcOnMathOp(newMthArr[nextmathOpp],+newMthArr[nextmathOpp-1], +newMthArr[nextmathOpp+1])
+        let operationValue=calcOnMathOp(newMthArr[nextmathOpp],Number( newMthArr[nextmathOpp-1]), Number(newMthArr[nextmathOpp+1]))
         if(operationValue.startsWith("ERROR")){
             return [operationValue];
         }
@@ -156,26 +135,39 @@ function calcPrioOp(newMthArr,op1,op2){
 function calcOnMathOp(mathOpChar,num1,num2){
     switch(mathOpChar){
         case '-': return `${num1-num2}`;
-        case '+': return `${num1+num2}`;
+        case '+': return `${num1+num2}`;                                
         case '*':return `${num1*num2}`;
         case '/':
             if(num2==0){
                 return "ERROR:cant divide by 0";
             }
-        return num1/num2;
-        case '^': return `${Math.pow(num1,num2)}`;
+        return `${num1/num2}`;
+        case '^': 
+            let powNum= `${Math.pow(num1,num2)}`;
+            if (powNum=='NaN'){
+                return "ERROR:couldn't calculate power"
+            }
+            return powNum
+           
         case '√': 
+            let rootNum;
             if(num2<0){
                 if(num1%2==0){
                     return "ERROR:unsupported imaginary number"
                 }
-                return `${-(Math.pow(-num2,1/num1))}`
+                rootNum=`${-(Math.pow(-num2,1/num1))}`
             }
             else if(num1==0){
                 return "ERROR:root 0 is not valid"
             }
-        return `${Math.pow(num2,1/num1)}`
-        
+            else{
+                rootNum=`${Math.pow(num2,1/num1)}`
+            }
+            if (rootNum=='NaN'){
+                return "ERROR:couldn't calculate root"
+            }
+            return rootNum
+                
     }
     return "ERROR: not math operation";
 }
