@@ -6,9 +6,11 @@
     flex-direction: column;
 }
 #calcScreen{
-    width: 100%;
+    resize: none;
+    width: calc(100% -2);
     height: 60%;
     font-size: 5vmin;
+    border: 1px;
     background-color: rgb(6, 163, 177);
 }
 #crntValue{
@@ -47,20 +49,20 @@
     display: grid;
     border-radius: 5%;
     background-color: aliceblue;
-    grid-template-columns:  repeat(4, 18.5vmin);
+    grid-template-columns: repeat(5, 17.2vmin);
     grid-template-rows: 25vmin repeat(5,14vmin);
     overflow: hidden;
-    column-gap: 2vmin;
+    column-gap: 1vmin;
     row-gap: 1vmin;
     height: 100vmin;
-    width: 80vmin;
+    width: 90vmin;
     font-size: 6vmin;
     grid-template-areas: 
-    "terminal terminal terminal terminal"
-    "btn1 btn2 btn3 btnPlus"
-    "btn4 btn5 btn6 btnMinus"
-    "btn7 btn8 btn9 btnMulti"
-    "btn0 btnDot btnClear btnDivide"
-    "btnOpenParan btnCloseParan btnEquals btnEquals";
+    "terminal terminal terminal terminal terminal"
+    "btn1 btn2 btn3 btnPlus btnMinus"
+    "btn4 btn5 btn6 btnMulti btnDivide"
+    "btn7 btn8 btn9  btnRoot btnPowered"
+    "btnDot btn0 btnOpenParan  btnCloseParan btnClear"
+    " btnEquals btnEquals btnEquals btnEquals btnEquals";
     
 }

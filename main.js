@@ -37,6 +37,7 @@ function addToCurrentCalc(textToAdd){
 function removeToCurrentCalc(){
     calcScreen.value= calcScreen.value.slice(0,-1)
     changeToCurrentCalc()
+    
 }
 
 function changeToCurrentCalc(){
@@ -44,7 +45,7 @@ function changeToCurrentCalc(){
     console.log()
     crntValue.innerText= `=${calcValue}`
     btnEquals.disabled=calcValue.startsWith("ERROR")
-    if (calcScreen.value.length>=30){
+    if (calcScreen.value.length>=55){
         changeDisableSimpleBtn(true)
     }
 }
@@ -97,19 +98,20 @@ function minIfNotNegative(num1,num2){
 function calcMathArr(mthArr){
     let newTempArr=mthArr;
 
-    let nextmathOpp=minIfNotNegative(newTempArr.indexOf('*'),newTempArr.indexOf('/'))
-    while(nextmathOpp!=-1){
-        if(newTempArr[nextmathOpp]=='/'){
-            if(newTempArr[nextmathOpp+1]==0)
-            {
-                return "ERROR:cant divide by 0"
-            }
-            newTempArr[nextmathOpp-1]= `${(+newTempArr[nextmathOpp-1])/(+newTempArr[nextmathOpp+1])}`
+    newTempArr=calcPrioOp(newTempArr,'^','√')
+    if (newTempArr[0].startsWith("ERROR")){
+        return newTempArr[0];
+    }
 
+    nextmathOpp=minIfNotNegative(newTempArr.indexOf('*'),newTempArr.indexOf('/'))
+    while(nextmathOpp!=-1){
+
+        let operationValue=calcOnMathOp(newTempArr[nextmathOpp],+newTempArr[nextmathOpp-1], +newTempArr[nextmathOpp+1])
+        if(operationValue.startsWith("ERROR")){
+            return operationValue;
         }
-        else{
-            newTempArr[nextmathOpp-1]= `${(+newTempArr[nextmathOpp-1])*(+newTempArr[nextmathOpp+1])}`
-        }
+
+        newTempArr[nextmathOpp-1]= operationValue
         newTempArr.splice(nextmathOpp,2)
 
         nextmathOpp=minIfNotNegative(newTempArr.indexOf('*'),newTempArr.indexOf('/'))
@@ -118,18 +120,64 @@ function calcMathArr(mthArr){
 
     nextmathOpp= minIfNotNegative(newTempArr.indexOf('-'),newTempArr.indexOf('+'))
     while(nextmathOpp!=-1){
-        if(newTempArr[nextmathOpp]=='-'){
-            newTempArr[nextmathOpp-1]= `${(+newTempArr[nextmathOpp-1])-(+newTempArr[nextmathOpp+1])}`
+        let operationValue=calcOnMathOp(newTempArr[nextmathOpp],+newTempArr[nextmathOpp-1], +newTempArr[nextmathOpp+1])
+        if(operationValue.startsWith("ERROR")){
+            return operationValue;
         }
-        else{
-            newTempArr[nextmathOpp-1]= `${(+newTempArr[nextmathOpp-1])+(+newTempArr[nextmathOpp+1])}`
-        }
+
+        newTempArr[nextmathOpp-1]= operationValue
         newTempArr.splice(nextmathOpp,2)
+
         nextmathOpp= minIfNotNegative(newTempArr.indexOf('-'),newTempArr.indexOf('+'))
     }
 
     return `${(Math.floor(newTempArr[0]*1000))/1000}`
 
+}
+
+
+function calcPrioOp(newMthArr,op1,op2){
+    let nextmathOpp=minIfNotNegative(newMthArr.indexOf(op1),newMthArr.indexOf(op2))
+    while(nextmathOpp!=-1){
+
+        let operationValue=calcOnMathOp(newMthArr[nextmathOpp],+newMthArr[nextmathOpp-1], +newMthArr[nextmathOpp+1])
+        if(operationValue.startsWith("ERROR")){
+            return [operationValue];
+        }
+
+        newMthArr[nextmathOpp-1]= operationValue
+        newMthArr.splice(nextmathOpp,2)
+
+        nextmathOpp=minIfNotNegative(newMthArr.indexOf(op1),newMthArr.indexOf(op2))
+    }
+    return newMthArr
+}
+
+function calcOnMathOp(mathOpChar,num1,num2){
+    switch(mathOpChar){
+        case '-': return `${num1-num2}`;
+        case '+': return `${num1+num2}`;
+        case '*':return `${num1*num2}`;
+        case '/':
+            if(num2==0){
+                return "ERROR:cant divide by 0";
+            }
+        return num1/num2;
+        case '^': return `${Math.pow(num1,num2)}`;
+        case '√': 
+            if(num2<0){
+                if(num1%2==0){
+                    return "ERROR:unsupported imaginary number"
+                }
+                return `${-(Math.pow(-num2,1/num1))}`
+            }
+            else if(num1==0){
+                return "ERROR:root 0 is not valid"
+            }
+        return `${Math.pow(num2,1/num1)}`
+        
+    }
+    return "ERROR: not math operation";
 }
 
 function splitMathStr(mthStr){
@@ -169,6 +217,8 @@ function splitMathStr(mthStr){
             case '+':
             case '*':
             case '/':
+            case '^':
+            case '√':
                 newArr.push(newStr)
                 newArr.push(mthStr[i])
                 newStr=""
@@ -185,13 +235,14 @@ function splitMathStr(mthStr){
         
     }
     newArr.push(newStr)
-    // console.log(newArr)
     return newArr
 
 }
 function isMathOper(mathOperStr){
     switch(mathOperStr)
     {
+        case '^':
+        case '√':
         case '-':
         case '+':
         case '*':
@@ -215,23 +266,27 @@ function startClearTimer()
     timePressedDown=new Date().getTime()
     btnClear.addEventListener('mouseup',endClearTimer)
     btnClear.addEventListener('mouseout',endClearTimer)
+    timeoutID=setTimeout(function(){btnClear.style.background='orange'},1000)
 }
 function endClearTimer(){
     if (new Date().getTime()-timePressedDown>1000){
         calcScreen.value=""
         changeToCurrentCalc()
+        crntValue.innerText='='
     }
     else{
         removeToCurrentCalc()
     }
+    btnClear.style.background=''
+    clearTimeout(timeoutID)
     btnClear.removeEventListener('mouseup',endClearTimer)
     btnClear.removeEventListener('mouseout',endClearTimer)
 }
 
 
 //run at start
-const simpleButtonArr=['+','-','*','/','.','(',')']
-const altNameArr=['Plus',"Minus","Multi","Divide","Dot",'OpenParan','CloseParan']
+const simpleButtonArr=['+','-','*','/','√','^','.','(',')']
+const altNameArr=['Plus',"Minus","Multi","Divide",'Root','Powered',"Dot",'OpenParan','CloseParan']
 for (let i = 0; i < 10; i++) {
     simpleButtonArr.push(`${i}`)    
 }
@@ -240,5 +295,6 @@ simpleButtonArr.forEach((simpleButton,smpBtnIndex)=>{ createButtons(simpleButton
 
 addEvLstnSimpleBtn()
 let timePressedDown;
+let timeoutID;
 btnClear.addEventListener('mousedown',startClearTimer)
 btnEquals.addEventListener('click',pressedEqual)
