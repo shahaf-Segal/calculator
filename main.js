@@ -45,6 +45,9 @@ function changeFromUser(){
         removeToCurrentCalc()
         pressedEqual()
     }
+    if(calcScreen.value.length==56){
+        removeToCurrentCalc()
+    }
     else{
         changeToCurrentCalc()   
     }
@@ -52,7 +55,6 @@ function changeFromUser(){
 
 function changeToCurrentCalc(){
     let calcValue=getTranslateCalculation(calcScreen.value)
-    console.log()
     crntValue.innerText= `=${calcValue}`
     btnEquals.disabled=calcValue.startsWith("ERROR")
     if (calcScreen.value.length>=55){
@@ -186,7 +188,7 @@ function calcOnMathOp(mathOpChar,num1,num2){
 }
 
 function splitMathStr(mthStr){
-    let newArr=[];
+    let newArr=['0','+'];
     let newStr="";
     let afterCloseParan=false;
     for(let i=0;i<mthStr.length;i++)
@@ -220,6 +222,10 @@ function splitMathStr(mthStr){
                     break;
                 }
             case '+':
+                if(i!=0&&mthStr[i-1]=='e'){
+                    newStr+=mthStr[i]
+                    break;
+                }
             case '*':
             case '/':
             case '^':
